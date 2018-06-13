@@ -7,7 +7,7 @@ namespace WebView.Interop
     public class HybridWebApplication : Application
     {
         private readonly Uri _source;
-        private WebUIApplication webUIApplication;
+        internal WebUIApplication webUIApplication;
 
         public HybridWebApplication(Uri source)
         {
@@ -40,6 +40,8 @@ namespace WebView.Interop
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
+
+            OnActivated(e);
         }
 
         protected override void OnActivated(IActivatedEventArgs e)

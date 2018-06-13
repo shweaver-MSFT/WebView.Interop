@@ -17,13 +17,38 @@ namespace WebView.Interop
     public sealed class WebUIApplication
     {
         /// <summary>
-        /// Binds a new WebUIAppication instance to a WebView.
+        /// 
         /// </summary>
-        /// <param name="webView"></param>
+        /// <param name="app"></param>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         /// <returns></returns>
-        public static WebUIApplication Bind(Application app, Windows.UI.Xaml.Controls.WebView webView)
+        public void Launch(Uri source, LaunchActivatedEventArgs e)
         {
-            return new WebUIApplication(app, webView);
+            // Do not repeat app initialization when the Window already has content,
+            // just ensure that the window is active
+            if (!(Window.Current.Content is Windows.UI.Xaml.Controls.WebView))
+            {
+                if (_webView != null)
+                {
+                    _webView.NavigationStarting -= WebView_NavigationStarting;
+                    _webView.NavigationCompleted -= _webView_NavigationCompleted;
+                }
+
+                _webView = new Windows.UI.Xaml.Controls.WebView();
+                _webView.NavigationStarting += WebView_NavigationStarting;
+                _webView.NavigationCompleted += _webView_NavigationCompleted;
+
+                Window.Current.Content = _webView;
+            }
+
+            _webView.Navigate(source);
+
+            if (e.PrelaunchActivated == false)
+            {
+                // Ensure the current window is active
+                Window.Current.Activate();
+            }
         }
 
         // Occurs when the app is activated.
@@ -48,7 +73,7 @@ namespace WebView.Interop
         /// 
         /// </summary>
         /// <param name="e"></param>
-        public void OnActivated(IActivatedEventArgs e)
+        public void Activate(IActivatedEventArgs e)
         {
             Activated?.Invoke(this, e);
         }
@@ -96,24 +121,18 @@ namespace WebView.Interop
         private Windows.UI.Xaml.Controls.WebView _webView;
         private CoreDispatcher m_dispatcher;
 
-        private WebUIApplication(Application app, Windows.UI.Xaml.Controls.WebView webView)
+        public WebUIApplication(Application app)
         {
             var window = CoreWindow.GetForCurrentThread();
             m_dispatcher = window.Dispatcher;
 
             _app = app;
-            _webView = webView;
 
             _app.EnteredBackground += App_EnteredBackground;
             _app.LeavingBackground += App_LeavingBackground;
             _app.Resuming += App_Resuming;
             _app.Suspending += App_Suspending;
             _app.UnhandledException += App_UnhandledException;
-
-            _webView.NavigationStarting += WebView_NavigationStarting;
-            _webView.NavigationCompleted += _webView_NavigationCompleted;
-
-
         }
 
         private void _webView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)

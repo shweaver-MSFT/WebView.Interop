@@ -16,40 +16,9 @@ namespace WebView.Interop
     [AllowForWeb]
     public sealed class WebUIApplication
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        public void Launch(Uri source, LaunchActivatedEventArgs e)
-        {
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
-            if (!(Window.Current.Content is Windows.UI.Xaml.Controls.WebView))
-            {
-                if (_webView != null)
-                {
-                    _webView.NavigationStarting -= WebView_NavigationStarting;
-                    _webView.NavigationCompleted -= _webView_NavigationCompleted;
-                }
-
-                _webView = new Windows.UI.Xaml.Controls.WebView();
-                _webView.NavigationStarting += WebView_NavigationStarting;
-                _webView.NavigationCompleted += _webView_NavigationCompleted;
-
-                Window.Current.Content = _webView;
-            }
-
-            _webView.Navigate(source);
-
-            if (e.PrelaunchActivated == false)
-            {
-                // Ensure the current window is active
-                Window.Current.Activate();
-            }
-        }
+        private Application _app;
+        private Windows.UI.Xaml.Controls.WebView _webView;
+        private CoreDispatcher m_dispatcher;
 
         // Occurs when the app is activated.
         public event EventHandler<IActivatedEventArgs> Activated;
@@ -69,58 +38,6 @@ namespace WebView.Interop
         // Occurs when the app is suspending.
         public event EventHandler<ISuspendingEventArgs> Suspending;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void Activate(IActivatedEventArgs e)
-        {
-            Activated?.Invoke(this, e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void OnNavigated(IWebUINavigatedEventArgs e)
-        {
-            Navigated?.Invoke(this, e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        public void EnablePrelaunch(bool value)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="launchArguments"></param>
-        /// <returns></returns>
-        public IAsyncOperation<AppRestartFailureReason> RequestRestartAsync(string launchArguments)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="launchArguments"></param>
-        /// <returns></returns>
-        public IAsyncOperation<AppRestartFailureReason> RequestRestartForUserAsync(User user, String launchArguments)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Application _app;
-        private Windows.UI.Xaml.Controls.WebView _webView;
-        private CoreDispatcher m_dispatcher;
-
         public WebUIApplication(Application app)
         {
             var window = CoreWindow.GetForCurrentThread();
@@ -135,66 +52,129 @@ namespace WebView.Interop
             _app.UnhandledException += App_UnhandledException;
         }
 
-        private void _webView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        public void Launch(Uri source, LaunchActivatedEventArgs e)
         {
-            Task.Run(async () =>
+            // Do not repeat app initialization when the Window already has content,
+            // just ensure that the window is active
+            if (!(Window.Current.Content is Windows.UI.Xaml.Controls.WebView))
             {
-                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
+                if (_webView != null)
                 {
-                    Navigated?.Invoke(this, null);
-                }));
-            });
+                    _webView.NavigationStarting -= WebView_NavigationStarting;
+                    _webView.NavigationCompleted -= WebView_NavigationCompleted;
+                }
+
+                _webView = new Windows.UI.Xaml.Controls.WebView();
+                _webView.NavigationStarting += WebView_NavigationStarting;
+                _webView.NavigationCompleted += WebView_NavigationCompleted;
+
+                Window.Current.Content = _webView;
+            }
+
+            _webView.Navigate(source);
+
+            if (e.PrelaunchActivated == false)
+            {
+                // Ensure the current window is active
+                Window.Current.Activate();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        public void OnActivated(IActivatedEventArgs e)
+        {
+            Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        public void OnNavigated(IWebUINavigatedEventArgs e)
+        {
+            Dispatch(() => Navigated?.Invoke(this, e));
+        }
+
+        /// <summary>
+        /// Enable or disable the operating system's ability to prelaunch your app.
+        /// </summary>
+        /// <param name="value"></param>
+        public void EnablePrelaunch(bool value)
+        {
+            CoreApplication.EnablePrelaunch(value);
+        }
+
+        /// <summary>
+        /// Restart the app.
+        /// </summary>
+        /// <param name="launchArguments"></param>
+        /// <returns></returns>
+        public IAsyncOperation<AppRestartFailureReason> RequestRestartAsync(string launchArguments)
+        {
+            return CoreApplication.RequestRestartAsync(launchArguments);
+        }
+
+        /// <summary>
+        /// Restart the app in the context of a different user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="launchArguments"></param>
+        /// <returns></returns>
+        public IAsyncOperation<AppRestartFailureReason> RequestRestartForUserAsync(User user, String launchArguments)
+        {
+            return CoreApplication.RequestRestartForUserAsync(user, launchArguments);
         }
 
         private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
         {
-            sender.AddWebAllowedObject("WebUIApplication", this);
+            sender.AddWebAllowedObject(GetType().Name, this);
+        }
+
+        private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
+        {
+            Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
         }
 
         private void App_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            Task.Run(async () =>
-            {
-                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() => 
-                {
-                    Suspending?.Invoke(this, e);
-                }));
-            });
+            Dispatch(() => Suspending?.Invoke(this, e));
         }
 
         private void App_Resuming(object sender, object e)
         {
-            Task.Run(async () =>
-            {
-                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
-                {
-                    Resuming?.Invoke(this, e);
-                }));
-            });
+            Dispatch(() => Resuming?.Invoke(this, e));
         }
 
         private void App_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
-            Task.Run(async () =>
-            {
-                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
-                {
-                    LeavingBackground?.Invoke(this, e);
-                }));
-            });
+            Dispatch(() => LeavingBackground?.Invoke(this, e));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void App_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            Task.Run(async () =>
-            {
-                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
-                {
-                    EnteredBackground?.Invoke(this, e);
-                }));
-            });
+            Dispatch(() => EnteredBackground?.Invoke(this, e));
         }
 
+        /// <summary>
+        /// Rethrow unhandled managed exceptions in the WebView as JavaScript errors.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             // Windows Runtime HRESULTs in the range over 0x80070000 are converted to JavaScript errors 
@@ -209,6 +189,18 @@ namespace WebView.Interop
             var description = e.Message;
 
             await _webView.InvokeScriptAsync("eval", new string[] { $"throw new Error('{number}', '{description}')" });
+        }
+
+        /// <summary>
+        /// Helper method for easy action dispatch on the UI thread.
+        /// </summary>
+        /// <param name="action"></param>
+        private void Dispatch(DispatchedHandler action)
+        {
+            Task.Run(async () =>
+            {
+                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, action);
+            });
         }
     }
 }

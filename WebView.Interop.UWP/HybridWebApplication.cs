@@ -23,12 +23,12 @@ namespace WebView.Interop.UWP
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             _webUIApplication.Launch(_source, e);
-            _webUIApplication.Activate(e);
+            _webUIApplication.OnActivated(e);
         }
 
         protected override void OnActivated(IActivatedEventArgs e)
         {
-            _webUIApplication.Activate(e);
+            _webUIApplication.OnActivated(e);
         }
     }
 }

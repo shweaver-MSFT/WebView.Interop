@@ -18,7 +18,6 @@ namespace WebView.Interop
     {
         private Application _app;
         private Windows.UI.Xaml.Controls.WebView _webView;
-        private CoreDispatcher m_dispatcher;
 
         // Occurs when the app is activated.
         public event EventHandler<IActivatedEventArgs> Activated;
@@ -40,9 +39,6 @@ namespace WebView.Interop
 
         public WebUIApplication(Application app)
         {
-            var window = CoreWindow.GetForCurrentThread();
-            m_dispatcher = window.Dispatcher;
-
             _app = app;
 
             _app.EnteredBackground += App_EnteredBackground;
@@ -197,10 +193,20 @@ namespace WebView.Interop
         /// <param name="action"></param>
         private void Dispatch(DispatchedHandler action)
         {
-            Task.Run(async () =>
-            {
-                await m_dispatcher.RunAsync(CoreDispatcherPriority.Normal, action);
-            });
+            Task.Run(() => action.Invoke());
+
+            //Task.Run(async () =>
+            //{
+            //    var dispatcher = CoreWindow.GetForCurrentThread()?.Dispatcher;
+            //    if (dispatcher != null)
+            //    {
+            //        await dispatcher.RunAsync(CoreDispatcherPriority.Normal, action);
+            //    }
+            //    else
+            //    {
+            //        System.Diagnostics.Debug.WriteLine("Uh oh");
+            //    }
+            //});
         }
     }
 }

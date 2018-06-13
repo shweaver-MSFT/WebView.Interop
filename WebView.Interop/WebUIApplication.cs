@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.System;
-using Windows.UI.Core;
 using Windows.UI.WebUI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -18,24 +16,25 @@ namespace WebView.Interop
     {
         private Application _app;
         private Windows.UI.Xaml.Controls.WebView _webView;
+        private ILaunchActivatedEventArgs _launchArgs;
 
         // Occurs when the app is activated.
-        public event EventHandler<IActivatedEventArgs> Activated;
+        public event EventHandler<Object> Activated;
 
         // Occurs when the app has begins running in the background (no UI is shown for the app).
-        public event EventHandler<IEnteredBackgroundEventArgs> EnteredBackground;
+        public event EventHandler<Object> EnteredBackground;
 
         // Occurs when the app is about to leave the background and before the app's UI is shown.
-        public event EventHandler<ILeavingBackgroundEventArgs> LeavingBackground;
+        public event EventHandler<Object> LeavingBackground;
 
         // Occurs when the app is navigating.
-        public event EventHandler<IWebUINavigatedEventArgs> Navigated;
+        public event EventHandler<Object> Navigated;
 
         // Occurs when the app is resuming.
         public event EventHandler<Object> Resuming;
 
         // Occurs when the app is suspending.
-        public event EventHandler<ISuspendingEventArgs> Suspending;
+        public event EventHandler<Object> Suspending;
 
         public WebUIApplication(Application app)
         {
@@ -57,6 +56,8 @@ namespace WebView.Interop
         /// <returns></returns>
         public void Launch(Uri source, LaunchActivatedEventArgs e)
         {
+            _launchArgs = e;
+
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
             if (!(Window.Current.Content is Windows.UI.Xaml.Controls.WebView))
@@ -70,6 +71,7 @@ namespace WebView.Interop
                 _webView = new Windows.UI.Xaml.Controls.WebView();
                 _webView.NavigationStarting += WebView_NavigationStarting;
                 _webView.NavigationCompleted += WebView_NavigationCompleted;
+                _webView.DOMContentLoaded += WebView_DOMContentLoaded;
 
                 Window.Current.Content = _webView;
             }
@@ -83,22 +85,10 @@ namespace WebView.Interop
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void OnActivated(IActivatedEventArgs e)
+        private void WebView_DOMContentLoaded(Windows.UI.Xaml.Controls.WebView sender, WebViewDOMContentLoadedEventArgs args)
         {
-            Dispatch(() => Activated?.Invoke(this, e));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void OnNavigated(IWebUINavigatedEventArgs e)
-        {
-            Dispatch(() => Navigated?.Invoke(this, e));
+            _webView.DOMContentLoaded -= WebView_DOMContentLoaded;
+            OnActivated(_launchArgs);
         }
 
         /// <summary>
@@ -131,24 +121,27 @@ namespace WebView.Interop
             return CoreApplication.RequestRestartForUserAsync(user, launchArguments);
         }
 
-        private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        public void OnActivated(IActivatedEventArgs e)
         {
-            sender.AddWebAllowedObject(GetType().Name, this);
+            Dispatch(() => Activated?.Invoke(this, e));
         }
 
-        private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        public void OnNavigated(IWebUINavigatedEventArgs e)
         {
-            Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
+            Dispatch(() => Navigated?.Invoke(this, e));
         }
 
-        private void App_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        private void App_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            Dispatch(() => Suspending?.Invoke(this, e));
-        }
-
-        private void App_Resuming(object sender, object e)
-        {
-            Dispatch(() => Resuming?.Invoke(this, e));
+            Dispatch(() => EnteredBackground?.Invoke(this, e));
         }
 
         private void App_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
@@ -156,14 +149,24 @@ namespace WebView.Interop
             Dispatch(() => LeavingBackground?.Invoke(this, e));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void App_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
+        private void App_Resuming(object sender, object e)
         {
-            Dispatch(() => EnteredBackground?.Invoke(this, e));
+            Dispatch(() => Resuming?.Invoke(this, e));
+        }
+
+        private void App_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            Dispatch(() => Suspending?.Invoke(this, e));
+        }
+
+        private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
+        {
+            Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
+        }
+
+        private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
+        {
+            sender.AddWebAllowedObject(GetType().Name, this);
         }
 
         /// <summary>
@@ -191,7 +194,7 @@ namespace WebView.Interop
         /// Helper method for easy action dispatch on the UI thread.
         /// </summary>
         /// <param name="action"></param>
-        private void Dispatch(DispatchedHandler action)
+        private void Dispatch(Action action)
         {
             Task.Run(() => action.Invoke());
 

@@ -28,7 +28,7 @@ namespace WebView.Interop
             // when supplying content from other locations
             try
             {
-                Uri localUri = new Uri("ms-appx:///" + path);
+                Uri localUri = new Uri("ms-appdata://" + path);
                 StorageFile f = await StorageFile.GetFileFromApplicationUriAsync(localUri);
                 IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
                 return stream;

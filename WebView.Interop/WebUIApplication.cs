@@ -76,7 +76,8 @@ namespace WebView.Interop
                 Window.Current.Content = _webView;
             }
 
-            _webView.Navigate(source);
+            var streamUri = _webView.BuildLocalStreamUri("Web", source.AbsolutePath);
+            _webView.NavigateToLocalStreamUri(streamUri, new LocalUriToStreamResolver());
 
             if (e.PrelaunchActivated == false)
             {

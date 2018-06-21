@@ -76,8 +76,7 @@ namespace WebView.Interop
                 Window.Current.Content = _webView;
             }
 
-            var streamUri = _webView.BuildLocalStreamUri("Web", source.AbsolutePath);
-            _webView.NavigateToLocalStreamUri(streamUri, new LocalUriToStreamResolver());
+            _webView.Navigate(source);
 
             if (e.PrelaunchActivated == false)
             {
@@ -198,19 +197,6 @@ namespace WebView.Interop
         private void Dispatch(Action action)
         {
             Task.Run(() => action.Invoke());
-
-            //Task.Run(async () =>
-            //{
-            //    var dispatcher = CoreWindow.GetForCurrentThread()?.Dispatcher;
-            //    if (dispatcher != null)
-            //    {
-            //        await dispatcher.RunAsync(CoreDispatcherPriority.Normal, action);
-            //    }
-            //    else
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("Uh oh");
-            //    }
-            //});
         }
     }
 }

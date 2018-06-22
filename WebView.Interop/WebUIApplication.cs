@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
@@ -127,7 +126,7 @@ namespace WebView.Interop
         /// <param name="e"></param>
         public void OnActivated(IActivatedEventArgs e)
         {
-            Dispatch(() => Activated?.Invoke(this, e));
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
         }
 
         /// <summary>
@@ -136,32 +135,32 @@ namespace WebView.Interop
         /// <param name="e"></param>
         public void OnNavigated(IWebUINavigatedEventArgs e)
         {
-            Dispatch(() => Navigated?.Invoke(this, e));
+            EventDispatcher.Dispatch(() => Navigated?.Invoke(this, e));
         }
 
         private void App_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            Dispatch(() => EnteredBackground?.Invoke(this, e));
+            EventDispatcher.Dispatch(() => EnteredBackground?.Invoke(this, e));
         }
 
         private void App_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
-            Dispatch(() => LeavingBackground?.Invoke(this, e));
+            EventDispatcher.Dispatch(() => LeavingBackground?.Invoke(this, e));
         }
 
         private void App_Resuming(object sender, object e)
         {
-            Dispatch(() => Resuming?.Invoke(this, e));
+            EventDispatcher.Dispatch(() => Resuming?.Invoke(this, e));
         }
 
         private void App_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            Dispatch(() => Suspending?.Invoke(this, e));
+            EventDispatcher.Dispatch(() => Suspending?.Invoke(this, e));
         }
 
         private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
         {
-            Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
+            EventDispatcher.Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
         }
 
         private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
@@ -188,15 +187,6 @@ namespace WebView.Interop
             var description = e.Message;
 
             await _webView.InvokeScriptAsync("eval", new string[] { $"throw new Error('{number}', '{description}')" });
-        }
-
-        /// <summary>
-        /// Helper method for easy action dispatch on the UI thread.
-        /// </summary>
-        /// <param name="action"></param>
-        private void Dispatch(Action action)
-        {
-            Task.Run(() => action.Invoke());
         }
     }
 }

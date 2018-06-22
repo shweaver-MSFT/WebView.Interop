@@ -27,6 +27,11 @@ namespace WebView.Interop.UWP
 
         protected override void OnActivated(IActivatedEventArgs e)
         {
+            if (e.Kind == ActivationKind.ContactPanel)
+            {
+                e = new ContactPanelActivatedEventArgs(e);
+            }
+
             _webUIApplication.OnActivated(e);
         }
     }

@@ -28,20 +28,7 @@ namespace WebView.Interop
 
         private void ContactPanel_LaunchFullAppRequested(Windows.ApplicationModel.Contacts.ContactPanel sender, ContactPanelLaunchFullAppRequestedEventArgs args)
         {
-            //System.NotSupportedException: 'Exception from HRESULT: 0x800A01B6'
             EventDispatcher.Dispatch(() => LaunchFullAppRequested?.Invoke(sender, args));
-
-            /*
-            System.Runtime.InteropServices.COMException
-              HResult=0x8000001F
-              Message=A COM call to an ASTA was blocked because the call chain originated in or passed through another ASTA. This call pattern is deadlock-prone and disallowed by apartment call control.
-
-            A COM call (IID: {C50898F6-C536-5F47-8583-8B2C2438A13B}, method index: 3) to an ASTA (thread 24048) was blocked because the call chain originated in or passed through another ASTA (thread 15312). This call pattern is deadlock-prone and disallowed by apartment call control.
-              Source=<Cannot evaluate the exception source>
-              StackTrace:
-            <Cannot evaluate the exception stack trace>
-             */
-            LaunchFullAppRequested?.Invoke(sender, args);
         }
 
         private void ContactPanel_Closing(Windows.ApplicationModel.Contacts.ContactPanel sender, ContactPanelClosingEventArgs args)

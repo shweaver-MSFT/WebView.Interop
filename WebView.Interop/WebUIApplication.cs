@@ -4,7 +4,6 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.System;
-using Windows.UI.WebUI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -13,7 +12,7 @@ namespace WebView.Interop
     [AllowForWeb]
     public sealed class WebUIApplication
     {
-        private Application _app;
+        private readonly Application _app;
         private Windows.UI.Xaml.Controls.WebView _webView;
         private ILaunchActivatedEventArgs _launchArgs;
 
@@ -35,6 +34,9 @@ namespace WebView.Interop
         // Occurs when the app is suspending.
         public event EventHandler<Object> Suspending;
 
+        // Occurs when the app creates a new window.
+        public event EventHandler<Object> WindowCreated;
+
         public WebUIApplication(Application app)
         {
             _app = app;
@@ -53,6 +55,7 @@ namespace WebView.Interop
         /// <param name="source"></param>
         /// <param name="e"></param>
         /// <returns></returns>
+        [DefaultOverload]
         public void Launch(Uri source, LaunchActivatedEventArgs e)
         {
             _launchArgs = e;
@@ -65,6 +68,7 @@ namespace WebView.Interop
                 {
                     _webView.NavigationStarting -= WebView_NavigationStarting;
                     _webView.NavigationCompleted -= WebView_NavigationCompleted;
+                    _webView.DOMContentLoaded -= WebView_DOMContentLoaded;
                 }
 
                 _webView = new Windows.UI.Xaml.Controls.WebView();
@@ -84,11 +88,37 @@ namespace WebView.Interop
             }
         }
 
-        private void WebView_DOMContentLoaded(Windows.UI.Xaml.Controls.WebView sender, WebViewDOMContentLoadedEventArgs args)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        public void Launch(Uri source, ContactPanelActivatedEventArgs e)
         {
-            _webView.DOMContentLoaded -= WebView_DOMContentLoaded;
-            OnActivated(_launchArgs);
+            var webView = new Windows.UI.Xaml.Controls.WebView();
+            webView.NavigationStarting += WebView_NavigationStarting;
+            webView.NavigationCompleted += WebView_NavigationCompleted;
+            webView.DOMContentLoaded += WebView_DOMContentLoaded;
+
+            Window.Current.Content = webView;
+            webView.Navigate(source);
+
+            // Ensure the current window is active
+            Window.Current.Activate();
         }
+
+        /// <summary>
+        /// Activation handlers
+        /// </summary>
+        /// <param name="e"></param>
+        public void Activate(IActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void BackgroundActivate(BackgroundActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void CachedFileUpdaterActivate(CachedFileUpdaterActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void FileActivate(FileActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void FileOpenPickerActivate(FileOpenPickerActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void FileSavePickerActivate(FileSavePickerActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void SearchActivate(SearchActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        public void ShareTargetActivate(ShareTargetActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
 
         /// <summary>
         /// Enable or disable the operating system's ability to prelaunch your app.
@@ -120,24 +150,7 @@ namespace WebView.Interop
             return CoreApplication.RequestRestartForUserAsync(user, launchArguments);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void OnActivated(IActivatedEventArgs e)
-        {
-            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        public void OnNavigated(IWebUINavigatedEventArgs e)
-        {
-            EventDispatcher.Dispatch(() => Navigated?.Invoke(this, e));
-        }
-
+        #region Application event handlers
         private void App_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
             EventDispatcher.Dispatch(() => EnteredBackground?.Invoke(this, e));
@@ -158,21 +171,6 @@ namespace WebView.Interop
             EventDispatcher.Dispatch(() => Suspending?.Invoke(this, e));
         }
 
-        private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
-        {
-            EventDispatcher.Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
-        }
-
-        private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
-        {
-            sender.AddWebAllowedObject(GetType().Name, this);
-        }
-
-        /// <summary>
-        /// Rethrow unhandled managed exceptions in the WebView as JavaScript errors.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             // Windows Runtime HRESULTs in the range over 0x80070000 are converted to JavaScript errors 
@@ -187,6 +185,26 @@ namespace WebView.Interop
             var description = e.Message;
 
             await _webView.InvokeScriptAsync("eval", new string[] { $"throw new Error('{number}', '{description}')" });
+
+            e.Handled = true;
         }
+        #endregion Application event handlers
+
+        #region WebView event handlers
+        private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
+        }
+
+        private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
+        {
+            sender.AddWebAllowedObject(GetType().Name, this);
+        }
+
+        private void WebView_DOMContentLoaded(Windows.UI.Xaml.Controls.WebView sender, WebViewDOMContentLoadedEventArgs args)
+        {
+            Activate(_launchArgs);
+        }
+        #endregion WebView event handlers
     }
 }

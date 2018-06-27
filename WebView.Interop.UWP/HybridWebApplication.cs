@@ -7,11 +7,13 @@ namespace WebView.Interop.UWP
     public class HybridWebApplication : Application
     {
         private readonly Uri _source;
-        private WebUIApplication _webUIApplication;
+        private readonly Uri _contactPanelSource;
+        private readonly WebUIApplication _webUIApplication;
 
-        public HybridWebApplication(Uri source)
+        public HybridWebApplication(Uri source, Uri contactPanelSource = null)
         {
             _source = source;
+            _contactPanelSource = contactPanelSource;
             _webUIApplication = new WebUIApplication(this);
         }
 
@@ -27,12 +29,57 @@ namespace WebView.Interop.UWP
 
         protected override void OnActivated(IActivatedEventArgs e)
         {
-            if (e.Kind == ActivationKind.ContactPanel)
+            // The ContactPanel cannot be interacted with from JS. Call Launch to load the ContactPanel page in a new WebView.
+            if (e.Kind == ActivationKind.ContactPanel && _contactPanelSource != null)
             {
-                e = new ContactPanelActivatedEventArgs(e);
+                _webUIApplication.Launch(_contactPanelSource, new ContactPanelActivatedEventArgs(e));
             }
+            else
+            {
+                _webUIApplication.Activate(e);
+            }
+        }
 
-            _webUIApplication.OnActivated(e);
+        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+            _webUIApplication.BackgroundActivate(args);
+            base.OnBackgroundActivated(args);
+        }
+
+        protected override void OnCachedFileUpdaterActivated(CachedFileUpdaterActivatedEventArgs args)
+        {
+            _webUIApplication.CachedFileUpdaterActivate(args);
+            base.OnCachedFileUpdaterActivated(args);
+        }
+
+        protected override void OnFileActivated(FileActivatedEventArgs args)
+        {
+            _webUIApplication.FileActivate(args);
+            base.OnFileActivated(args);
+        }
+
+        protected override void OnFileOpenPickerActivated(FileOpenPickerActivatedEventArgs args)
+        {
+            _webUIApplication.FileOpenPickerActivate(args);
+            base.OnFileOpenPickerActivated(args);
+        }
+
+        protected override void OnFileSavePickerActivated(FileSavePickerActivatedEventArgs args)
+        {
+            _webUIApplication.FileSavePickerActivate(args);
+            base.OnFileSavePickerActivated(args);
+        }
+
+        protected override void OnSearchActivated(SearchActivatedEventArgs args)
+        {
+            _webUIApplication.SearchActivate(args);
+            base.OnSearchActivated(args);
+        }
+
+        protected override void OnShareTargetActivated(ShareTargetActivatedEventArgs args)
+        {
+            _webUIApplication.ShareTargetActivate(args);
+            base.OnShareTargetActivated(args);
         }
     }
 }

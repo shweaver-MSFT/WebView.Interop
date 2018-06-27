@@ -26,6 +26,8 @@ namespace WebView.Interop
             _contactPanel.Closing += ContactPanel_Closing;
         }
 
+        public void ClosePanel() => _contactPanel.ClosePanel();
+
         private void ContactPanel_LaunchFullAppRequested(Windows.ApplicationModel.Contacts.ContactPanel sender, ContactPanelLaunchFullAppRequestedEventArgs args)
         {
             EventDispatcher.Dispatch(() => LaunchFullAppRequested?.Invoke(sender, args));
@@ -36,9 +38,5 @@ namespace WebView.Interop
             EventDispatcher.Dispatch(() => Closing?.Invoke(sender, args));
         }
 
-        public void ClosePanel()
-        {
-            _contactPanel.ClosePanel();
-        }
     }
 }

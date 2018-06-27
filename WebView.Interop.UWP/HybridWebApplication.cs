@@ -32,7 +32,7 @@ namespace WebView.Interop.UWP
             // The ContactPanel cannot be interacted with from JS. Call Launch to load the ContactPanel page in a new WebView.
             if (e.Kind == ActivationKind.ContactPanel && _contactPanelSource != null)
             {
-                _webUIApplication.Launch(_contactPanelSource, new ContactPanelActivatedEventArgs(e));
+                _webUIApplication.Launch(_contactPanelSource, new ContactPanelActivatedEventArgs(e as Windows.ApplicationModel.Activation.ContactPanelActivatedEventArgs));
             }
             else
             {
@@ -40,7 +40,7 @@ namespace WebView.Interop.UWP
             }
         }
 
-        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        protected override void OnBackgroundActivated(Windows.ApplicationModel.Activation.BackgroundActivatedEventArgs args)
         {
             _webUIApplication.BackgroundActivate(args);
             base.OnBackgroundActivated(args);
@@ -80,6 +80,12 @@ namespace WebView.Interop.UWP
         {
             _webUIApplication.ShareTargetActivate(args);
             base.OnShareTargetActivated(args);
+        }
+
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        {
+            _webUIApplication.OnWindowCreated(args);
+            base.OnWindowCreated(args);
         }
     }
 }

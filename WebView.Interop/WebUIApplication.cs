@@ -112,13 +112,46 @@ namespace WebView.Interop
         /// </summary>
         /// <param name="e"></param>
         public void Activate(IActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void BackgroundActivate(BackgroundActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void CachedFileUpdaterActivate(CachedFileUpdaterActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void FileActivate(FileActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void FileOpenPickerActivate(FileOpenPickerActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void FileSavePickerActivate(FileSavePickerActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void SearchActivate(SearchActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
-        public void ShareTargetActivate(ShareTargetActivatedEventArgs e) => EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+
+        public void BackgroundActivate(Windows.ApplicationModel.Activation.BackgroundActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, new BackgroundActivatedEventArgs(_launchArgs, e)));
+        }
+
+        public void CachedFileUpdaterActivate(CachedFileUpdaterActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        public void FileActivate(FileActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        public void FileOpenPickerActivate(FileOpenPickerActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        public void FileSavePickerActivate(FileSavePickerActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        public void SearchActivate(SearchActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        public void ShareTargetActivate(ShareTargetActivatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, e));
+        }
+
+        public void OnWindowCreated(WindowCreatedEventArgs e)
+        {
+            EventDispatcher.Dispatch(() => WindowCreated?.Invoke(this, e));
+        }
 
         /// <summary>
         /// Enable or disable the operating system's ability to prelaunch your app.

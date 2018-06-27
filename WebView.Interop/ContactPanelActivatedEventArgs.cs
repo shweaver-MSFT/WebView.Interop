@@ -7,22 +7,21 @@ namespace WebView.Interop
     [AllowForWeb]
     public sealed class ContactPanelActivatedEventArgs : IActivatedEventArgs
     {
-        public Contact Contact { get; }
+        private Windows.ApplicationModel.Activation.ContactPanelActivatedEventArgs _contactPanelActivatedEventArgs;
+
+        // IActivatedEventArgs members
+        public ActivationKind Kind => _contactPanelActivatedEventArgs.Kind;
+        public ApplicationExecutionState PreviousExecutionState => _contactPanelActivatedEventArgs.PreviousExecutionState;
+        public SplashScreen SplashScreen => _contactPanelActivatedEventArgs.SplashScreen;
+
+        // IContactPanelActivatedEventArgs members
+        public Contact Contact => _contactPanelActivatedEventArgs.Contact;
         public ContactPanel ContactPanel { get; }
 
-        public ActivationKind Kind { get; }
-        public ApplicationExecutionState PreviousExecutionState { get; }
-        public SplashScreen SplashScreen { get; }
-
-        public ContactPanelActivatedEventArgs(IActivatedEventArgs args)
+        public ContactPanelActivatedEventArgs(Windows.ApplicationModel.Activation.ContactPanelActivatedEventArgs contactPanelActivatedEventArgs)
         {
-            var contactPanelArgs = args as Windows.ApplicationModel.Activation.ContactPanelActivatedEventArgs;
-            Contact = contactPanelArgs.Contact;
-            ContactPanel = new ContactPanel(contactPanelArgs.ContactPanel);
-
-            Kind = args.Kind;
-            PreviousExecutionState = args.PreviousExecutionState;
-            SplashScreen = args.SplashScreen;
+            _contactPanelActivatedEventArgs = contactPanelActivatedEventArgs;
+            ContactPanel = new ContactPanel(contactPanelActivatedEventArgs.ContactPanel);
         }
     }
 }

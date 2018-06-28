@@ -9,7 +9,7 @@ namespace WebView.Interop
     /// 
     /// This class mushes activation args with the BackgroundActivatedEventArgs for use during app activation in JavaScript.
     /// </summary>
-    public class BackgroundActivatedEventArgs : IActivatedEventArgs, IBackgroundActivatedEventArgs
+    public sealed class BackgroundActivatedEventArgs : IActivatedEventArgs, IBackgroundActivatedEventArgs
     {
         private IActivatedEventArgs _activatedEventArgs;
         private IBackgroundActivatedEventArgs _backgroundActivatedEventArgs;

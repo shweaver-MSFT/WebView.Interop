@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hybrid Web Application</title>
+
+    <link href="css/global.css" rel="stylesheet">
+</head>
+<body>
+    <div class="contentRoot">
+
+    </div>
+
+    <!-- Include scripts at the end, for perf. -->
+    <script src="js/logger.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/activation.js"></script>
+    <script>
+        (function () {
+
+            /* Main ViewModel */
+            var viewModel = new function () {
+
+                var logger = document.logger;
+
+                /**
+                 * Initialize the ViewModel.
+                 */
+                this.InitializeAsync = async function () {
+                    logger.Log("Main ViewModel Initializing...");
+                    logger.Log("Main ViewModel Initialized");
+                };
+            };
+
+            /* Main View */
+            var view = new function () {
+
+                // Init View
+                logger.Log("Main View Initializing...");
+
+                // Init ViewModel
+                await viewModel.InitializeAsync();
+
+                logger.Log("Main View Initialized");
+            }();
+
+        })();
+    </script>
+</body>
+</html>

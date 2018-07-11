@@ -67,13 +67,11 @@ namespace WebView.Interop
                 if (_webView != null)
                 {
                     _webView.NavigationStarting -= WebView_NavigationStarting;
-                    _webView.NavigationCompleted -= WebView_NavigationCompleted;
                     _webView.DOMContentLoaded -= WebView_DOMContentLoaded;
                 }
 
                 _webView = new Windows.UI.Xaml.Controls.WebView();
                 _webView.NavigationStarting += WebView_NavigationStarting;
-                _webView.NavigationCompleted += WebView_NavigationCompleted;
                 _webView.DOMContentLoaded += WebView_DOMContentLoaded;
 
                 Window.Current.Content = _webView;
@@ -97,7 +95,6 @@ namespace WebView.Interop
         {
             var webView = new Windows.UI.Xaml.Controls.WebView();
             webView.NavigationStarting += WebView_NavigationStarting;
-            webView.NavigationCompleted += WebView_NavigationCompleted;
             webView.DOMContentLoaded += WebView_DOMContentLoaded;
 
             Window.Current.Content = webView;
@@ -224,11 +221,6 @@ namespace WebView.Interop
         #endregion Application event handlers
 
         #region WebView event handlers
-        private void WebView_NavigationCompleted(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationCompletedEventArgs e)
-        {
-            EventDispatcher.Dispatch(() => Navigated?.Invoke(this, new WebUINavigatedEventArgs(e)));
-        }
-
         private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
         {
             sender.AddWebAllowedObject(GetType().Name, this);

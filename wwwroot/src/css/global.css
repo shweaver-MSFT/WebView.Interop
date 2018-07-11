@@ -1,0 +1,51 @@
+﻿/* Element styles */
+body {
+    margin: 0;
+    font-family: 'Segoe UI';
+    font-size: 10px;
+    line-height: 14px;
+    color: #323232;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 37px;
+    color: #E6E6E6;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 24px;
+}
+
+button {
+    height: 24px;
+    width: 96px;
+    background-color: #CCCCCC;
+    margin-left: 8px;
+    font-family: 'Segoe UI';
+    font-size: 10px;
+    line-height: 14px;
+    color: #323232;
+    border: 0;
+    padding: 0;
+}
+
+    button:disabled {
+        color: #F2F2F2;
+    }
+
+    button:hover {
+        color: #F2F2F2;
+        background-color: #323232;
+    }
+
+    button:disabled:hover {
+        background-color: #CCCCCC;
+    }
+
+    .contentRoot {
+        margin: 0;
+    }

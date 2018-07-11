@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+  <Identity Name="b6348509-b37e-4307-9e1f-e52a880e2642" Version="1.0.2.0" Publisher="CN=shweaver" />
+  <mp:PhoneIdentity PhoneProductId="b6348509-b37e-4307-9e1f-e52a880e2642" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Properties>
+    <DisplayName>MyPeopleUWA</DisplayName>
+    <PublisherDisplayName>shweaver</PublisherDisplayName>
+    <Logo>images\storelogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" StartPage="ms-appx-web:///index.html">
+      <uap:ApplicationContentUriRules>
+        <uap:Rule Match="ms-appx-web:///index.html" Type="include" WindowsRuntimeAccess="all" />
+      </uap:ApplicationContentUriRules>
+      <uap:VisualElements DisplayName="My People - Progressive web app samples" Description="Progressive web app samples: My People sample" BackgroundColor="transparent" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="images\Wide310x150Logo.png">
+        </uap:DefaultTile>
+        <uap:SplashScreen Image="images\splashscreen.png" />
+      </uap:VisualElements>
+      <Extensions xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4">
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="mypeoplepwa">
+            <uap:DisplayName>MyPeoplePWA App Extension</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="mailto">
+            <uap:DisplayName>MyPeoplePWA Mail Extension</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <uap:Extension Category="windows.shareTarget">
+          <uap:ShareTarget>
+            <uap:SupportedFileTypes>
+              <uap:SupportsAnyFileType />
+            </uap:SupportedFileTypes>
+            <uap:DataFormat>Text</uap:DataFormat>
+            <uap:DataFormat>Uri</uap:DataFormat>
+            <uap:DataFormat>Bitmap</uap:DataFormat>
+            <uap:DataFormat>Html</uap:DataFormat>
+            <uap:DataFormat>http://schema.org/Book</uap:DataFormat>
+          </uap:ShareTarget>
+        </uap:Extension>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="ms-contact-profile">
+            <uap:DisplayName>MyPeopleUWA</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <!-- If you are writing an email app, you don’t need to annotate every contact manually. 
+             If you declare support for the contact pane and for the mailto: protocol, your application will automatically appear for users with an email address.
+             https://docs.microsoft.com/en-us/windows/uwp/contacts-and-calendar/my-people-support#support-for-email-apps -->
+        <!-- ShareTarget -->
+        <!-- To declare support for the My People contract, make the following changes to the manifest:
+             https://docs.microsoft.com/en-us/windows/uwp/contacts-and-calendar/my-people-support#declaring-support-for-the-contract-->
+        <uap4:Extension Category="windows.contactPanel" StartPage="index.html">
+          <!-- By default, your application will only appear in the contact panel for contacts that you have specifically annotated. 
+               This is to avoid confusion with contacts that can’t be interacted with through your app. 
+               If you want your application to appear for contacts that your application doesn’t know about 
+               (to invite users to add that contact to their account, for instance), you can add the following to your manifest.
+
+               With this change, your application will appear as an available option in the contact panel for all contacts that the user has pinned. 
+               When your application is activated using the contact panel contract, you should check to see if the contact is one your application knows about. 
+               If not, you should show your app’s new user experience.
+               https://docs.microsoft.com/en-us/windows/uwp/contacts-and-calendar/my-people-support#allow-contacts-to-invite-new-potential-users -->
+          <uap4:ContactPanel SupportsUnknownContacts="true" />
+        </uap4:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <uap:Capability Name="contacts" />
+  </Capabilities>
+</Package>

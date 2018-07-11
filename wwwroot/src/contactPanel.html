@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My People - Progressive web app samples</title>
+
+    <link href="css/global.css" rel="stylesheet">
+    <link href="css/contactPanel.css" rel="stylesheet">
+</head>
+<body>
+    <div class="contentRoot">
+
+    </div>
+
+    <!-- Include scripts at the end, for perf. -->
+    <script src="js/logger.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/activation.js"></script>
+    <script>
+        (function () {
+
+            /* ContactPanel ViewModel */
+            var viewModel = new function () {
+
+                var logger = document.logger;
+
+                /**
+                 * Initialize the ViewModel.
+                 */
+                this.InitializeAsync = async function () {
+                    logger.Log("ContactPanel ViewModel Initializing...");
+                    logger.Log("ContactPanel ViewModel Initialized");
+                };
+            };
+
+            /* ContactPanel View */
+            var view = new function () {
+
+                // Init View
+                logger.Log("ContactPanel View Initializing...");
+
+                // Init ViewModel
+                await viewModel.InitializeAsync();
+
+                logger.Log("ContactPanel View Initialized");
+            }();
+
+        })();
+    </script>
+</body>
+</html>

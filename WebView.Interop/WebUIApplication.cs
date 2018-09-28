@@ -14,7 +14,7 @@ namespace WebView.Interop
     {
         private readonly Application _app;
         private Windows.UI.Xaml.Controls.WebView _webView;
-        private ILaunchActivatedEventArgs _launchArgs;
+        private IActivatedEventArgs _launchArgs;
 
         // Occurs when the app is activated.
         public event EventHandler<Object> Activated;
@@ -56,7 +56,7 @@ namespace WebView.Interop
         /// <param name="e"></param>
         /// <returns></returns>
         [DefaultOverload]
-        public void Launch(Uri source, LaunchActivatedEventArgs e)
+        public void Launch(Uri source, IActivatedEventArgs e)
         {
             _launchArgs = e;
 
@@ -79,7 +79,8 @@ namespace WebView.Interop
 
             _webView.Navigate(source);
 
-            if (e.PrelaunchActivated == false)
+            if (!(e is IPrelaunchActivatedEventArgs) ||
+                e is IPrelaunchActivatedEventArgs && (e as IPrelaunchActivatedEventArgs).PrelaunchActivated == false)
             {
                 // Ensure the current window is active
                 Window.Current.Activate();

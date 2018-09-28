@@ -34,6 +34,10 @@ namespace WebView.Interop.UWP
             {
                 _webUIApplication.Launch(_contactPanelSource, new ContactPanelActivatedEventArgs(e as Windows.ApplicationModel.Activation.ContactPanelActivatedEventArgs));
             }
+            else if (e.PreviousExecutionState != ApplicationExecutionState.Running || e.PreviousExecutionState != ApplicationExecutionState.Suspended)
+            {
+                _webUIApplication.Launch(_source, e);
+            }
             else
             {
                 _webUIApplication.Activate(e);

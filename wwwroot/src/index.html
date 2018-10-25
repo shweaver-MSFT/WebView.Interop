@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="contentRoot">
-
+        Hello World
     </div>
 
     <!-- Include scripts at the end, for perf. -->
@@ -20,10 +20,10 @@
     <script>
         (function () {
 
+            var logger = document.logger;
+
             /* Main ViewModel */
             var viewModel = new function () {
-
-                var logger = document.logger;
 
                 /**
                  * Initialize the ViewModel.
@@ -41,7 +41,7 @@
                 logger.Log("Main View Initializing...");
 
                 // Init ViewModel
-                await viewModel.InitializeAsync();
+                viewModel.InitializeAsync();
 
                 logger.Log("Main View Initialized");
             }();

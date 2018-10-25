@@ -17,13 +17,27 @@
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="SampleApp_JS.App">
       <uap:VisualElements DisplayName="SampleApp_JS" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png" Description="SampleApp_JS" BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="images\Wide310x150Logo.png">
-          <uap:ShowNameOnTiles>
-            <uap:ShowOn Tile="square150x150Logo" />
-            <uap:ShowOn Tile="wide310x150Logo" />
-          </uap:ShowNameOnTiles>
         </uap:DefaultTile>
         <uap:SplashScreen Image="images\SplashScreen.png" />
       </uap:VisualElements>
+      <uap:ApplicationContentUriRules>
+        <uap:Rule Match="ms-appx-web:///index.html" Type="include" WindowsRuntimeAccess="all" />
+        <uap:Rule Match="ms-appx-web:///contactPanel.html" Type="include" WindowsRuntimeAccess="all" />
+      </uap:ApplicationContentUriRules>
+      <Extensions xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4">
+        <uap4:Extension Category="windows.contactPanel" StartPage="index.html">
+          <!-- By default, your application will only appear in the contact panel for contacts that you have specifically annotated. 
+               This is to avoid confusion with contacts that can’t be interacted with through your app. 
+               If you want your application to appear for contacts that your application doesn’t know about 
+               (to invite users to add that contact to their account, for instance), you can add the following to your manifest.
+
+               With this change, your application will appear as an available option in the contact panel for all contacts that the user has pinned. 
+               When your application is activated using the contact panel contract, you should check to see if the contact is one your application knows about. 
+               If not, you should show your app’s new user experience.
+               https://docs.microsoft.com/en-us/windows/uwp/contacts-and-calendar/my-people-support#allow-contacts-to-invite-new-potential-users -->
+          <uap4:ContactPanel SupportsUnknownContacts="true" />
+        </uap4:Extension>
+      </Extensions>
     </Application>
   </Applications>
   <Capabilities>

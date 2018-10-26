@@ -14,7 +14,7 @@ But a small one. The truth is, the WWAHost does not expose absolutely ALL that t
 
 But you may be thinking, 
 
-> "Hey! Why don't I just make a native XAML app with a full view WebView to load my PWA, then interop between the layers to provide support as needed."
+> "Hey! Why don't I just make a native XAML app with a full view WebView to load my PWA, then interop between the layers to provide support as needed?"
 
 Those were my thoughts too...
 

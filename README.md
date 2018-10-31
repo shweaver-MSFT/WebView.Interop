@@ -39,3 +39,11 @@ WebUIApplication may sound familiar. That it is because it shares a class name w
 During activation, the HybridWebApplication creates a new WebView and injects it into the window. It then creates a new WebView.Interop.WebUIApplication `[AllowForWeb]` object and injects that into the WebView. From there, the WebView is navigated to the endpoint and the JavaScript app activates within the WebView just as if it were living in a real WWAHost!
 
 Tadaa! Now you can start integrating your PWA with ALL Windows Universal features, and even create new and exciting hybrid application types.
+
+# Contributing
+This project has adopted the [Microsoft Open Source Code of
+Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct
+FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com)
+with any additional questions or comments.

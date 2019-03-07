@@ -92,8 +92,44 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="../wwwroot/src/**/*.*">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+    <Content Include="..\wwwroot\src\css\global.css">
+      <Link>css\global.css</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\LockScreenLogo.scale-200.png">
+      <Link>images\LockScreenLogo.scale-200.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\SplashScreen.scale-200.png">
+      <Link>images\SplashScreen.scale-200.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\Square150x150Logo.scale-200.png">
+      <Link>images\Square150x150Logo.scale-200.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\Square44x44Logo.scale-200.png">
+      <Link>images\Square44x44Logo.scale-200.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Link>images\Square44x44Logo.targetsize-24_altform-unplated.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\StoreLogo.png">
+      <Link>images\StoreLogo.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\images\Wide310x150Logo.scale-200.png">
+      <Link>images\Wide310x150Logo.scale-200.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\index.html">
+      <Link>index.html</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\wwwroot\src\js\activation.js">
+      <Link>js\activation.js</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

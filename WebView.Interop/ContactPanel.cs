@@ -37,6 +37,5 @@ namespace WebView.Interop
         {
             EventDispatcher.Dispatch(() => Closing?.Invoke(sender, args));
         }
-
     }
 }

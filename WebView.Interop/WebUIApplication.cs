@@ -5,16 +5,15 @@ using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.System;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace WebView.Interop
 {
     [AllowForWeb]
     public sealed class WebUIApplication
     {
-        private readonly Application _app;
-        private Windows.UI.Xaml.Controls.WebView _webView;
-        private IActivatedEventArgs _launchArgs;
+        private bool _isInBackground = false;
+        private Application _app;
+        public IActivatedEventArgs LaunchArgs { get; private set; }
 
         // Occurs when the app is activated.
         public event EventHandler<Object> Activated;
@@ -24,9 +23,6 @@ namespace WebView.Interop
 
         // Occurs when the app is about to leave the background and before the app's UI is shown.
         public event EventHandler<Object> LeavingBackground;
-
-        // Occurs when the app is navigating.
-        public event EventHandler<Object> Navigated;
 
         // Occurs when the app is resuming.
         public event EventHandler<Object> Resuming;
@@ -48,6 +44,32 @@ namespace WebView.Interop
             _app.UnhandledException += App_UnhandledException;
         }
 
+        ~WebUIApplication()
+        {
+            LaunchArgs = null;
+
+            if (Window.Current.Content != null)
+            {
+                Window.Current.Content = null;
+            }
+
+            if (_app != null)
+            {
+                _app.EnteredBackground -= App_EnteredBackground;
+                _app.LeavingBackground -= App_LeavingBackground;
+                _app.Resuming -= App_Resuming;
+                _app.Suspending -= App_Suspending;
+                _app.UnhandledException -= App_UnhandledException;
+                _app = null;
+            }
+        }
+
+        private WebViewPage CreateWebViewPage(Uri sourceUri, IActivatedEventArgs args)
+        {
+            var webViewPage = new WebViewPage(this, sourceUri, args);
+            return webViewPage;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -58,26 +80,17 @@ namespace WebView.Interop
         [DefaultOverload]
         public void Launch(Uri source, IActivatedEventArgs e)
         {
-            _launchArgs = e;
+            if (e != null)
+            {
+                LaunchArgs = e;
+            }
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
-            if (!(Window.Current.Content is Windows.UI.Xaml.Controls.WebView))
+            if (!(Window.Current.Content is WebViewPage))
             {
-                if (_webView != null)
-                {
-                    _webView.NavigationStarting -= WebView_NavigationStarting;
-                    _webView.DOMContentLoaded -= WebView_DOMContentLoaded;
-                }
-
-                _webView = new Windows.UI.Xaml.Controls.WebView();
-                _webView.NavigationStarting += WebView_NavigationStarting;
-                _webView.DOMContentLoaded += WebView_DOMContentLoaded;
-
-                Window.Current.Content = _webView;
+                Window.Current.Content = CreateWebViewPage(source, LaunchArgs);
             }
-
-            _webView.Navigate(source);
 
             if (!(e is IPrelaunchActivatedEventArgs) ||
                 e is IPrelaunchActivatedEventArgs && (e as IPrelaunchActivatedEventArgs).PrelaunchActivated == false)
@@ -94,12 +107,7 @@ namespace WebView.Interop
         /// <param name="e"></param>
         public void Launch(Uri source, ContactPanelActivatedEventArgs e)
         {
-            var webView = new Windows.UI.Xaml.Controls.WebView();
-            webView.NavigationStarting += WebView_NavigationStarting;
-            webView.DOMContentLoaded += WebView_DOMContentLoaded;
-
-            Window.Current.Content = webView;
-            webView.Navigate(source);
+            Window.Current.Content = CreateWebViewPage(source, e);
 
             // Ensure the current window is active
             Window.Current.Activate();
@@ -113,7 +121,7 @@ namespace WebView.Interop
 
         public void BackgroundActivate(Windows.ApplicationModel.Activation.BackgroundActivatedEventArgs e)
         {
-            EventDispatcher.Dispatch(() => Activated?.Invoke(this, new BackgroundActivatedEventArgs(_launchArgs, e)));
+            EventDispatcher.Dispatch(() => Activated?.Invoke(this, new BackgroundActivatedEventArgs(LaunchArgs, e)));
         }
 
         public void CachedFileUpdaterActivate(CachedFileUpdaterActivatedEventArgs e)
@@ -149,6 +157,26 @@ namespace WebView.Interop
         public void OnWindowCreated(WindowCreatedEventArgs e)
         {
             EventDispatcher.Dispatch(() => WindowCreated?.Invoke(this, e));
+        }
+
+        public void OnEnteredBackground(Windows.ApplicationModel.EnteredBackgroundEventArgs args)
+        {
+            _isInBackground = true;
+
+            if (Window.Current.Content is WebViewPage webViewPage)
+            {
+                webViewPage.Unload();
+            }
+        }
+
+        public void OnLeavingBackground(Windows.ApplicationModel.LeavingBackgroundEventArgs args)
+        {
+            if (_isInBackground && Window.Current.Content is WebViewPage webViewPage)
+            {
+                webViewPage.Load();
+            }
+
+            _isInBackground = false;
         }
 
         /// <summary>
@@ -215,22 +243,11 @@ namespace WebView.Interop
             var number = "SCRIPT" + int.Parse(Convert.ToString(lowBits), System.Globalization.NumberStyles.HexNumber);
             var description = e.Message;
 
-            await _webView.InvokeScriptAsync("eval", new string[] { $"throw new Error('{number}', '{description}')" });
+            // TODO: Fix error bubbling
+            //await _webView.InvokeScriptAsync("eval", new string[] { $"throw new Error('{number}', '{description}')" });
 
             e.Handled = true;
         }
         #endregion Application event handlers
-
-        #region WebView event handlers
-        private void WebView_NavigationStarting(Windows.UI.Xaml.Controls.WebView sender, WebViewNavigationStartingEventArgs e)
-        {
-            sender.AddWebAllowedObject(GetType().Name, this);
-        }
-
-        private void WebView_DOMContentLoaded(Windows.UI.Xaml.Controls.WebView sender, WebViewDOMContentLoadedEventArgs args)
-        {
-            Activate(_launchArgs);
-        }
-        #endregion WebView event handlers
     }
 }
